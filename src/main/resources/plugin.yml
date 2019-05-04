@@ -1,0 +1,6 @@
+name: ShoChicken
+version: ${project.version}
+main: com.shojabon.shochicken.ShoChicken
+authors: [Sho0]
+commands:
+ test:
