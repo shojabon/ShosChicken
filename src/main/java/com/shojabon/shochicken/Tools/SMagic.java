@@ -14,10 +14,33 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class SMagic {
+
+    private class FixedLine{
+        private Vector endPoint;
+        private double dense;
+
+        public FixedLine(Vector endPoint, double dense){
+            this.endPoint = endPoint;
+            this.dense = dense;
+        }
+
+        public Vector getEndPoint() {
+            return endPoint;
+        }
+
+        public double getDense() {
+            return dense;
+        }
+    }
     
     private ArrayList<Vector> locations = new ArrayList<>();
+    private ArrayList<FixedLine> fixedLine = new ArrayList<>();
     private Vector distanceAwayMargin = new Vector();
     private Vector baseMagrin = new Vector();
+    private long playAfter = 0;
+    private ArrayList<SMagic> SMagicComponents = new ArrayList<>();
+    private Location direction;
+
 
 
     private  double cos(double a){
@@ -53,21 +76,49 @@ public class SMagic {
     }
 
     public  SMagic rotateFunction(Location direction){
-        for(int i =0; i < locations.size(); i++){
-            locations.set(i, rotateFunction(locations.get(i), direction));
-        }
+        this.direction = direction;
+//        for(int i =0; i < locations.size(); i++){
+//            locations.set(i, rotateFunction(locations.get(i), direction));
+//        }
         return this;
     }
 
-    public SMagic circle(float radius, int dots){
-        for(int i =0; i < dots; i++){
-            double x = sin(Math.toRadians(i*360D/((double)dots)*radius));
-            double y = cos(Math.toRadians(i*360D/((double)dots)*radius));
+    public SMagic setPlayAfter(long mills){
+        playAfter = mills;
+        return this;
+    }
+
+    public SMagic circle(double radius, int dots){
+        for(double i =0; i < dots; i++){
+            double x = sin(Math.toRadians(i*360D/((double)dots))) * radius;
+            double y = cos(Math.toRadians(i*360D/((double)dots))) * radius;
             locations.add(new Vector(x, y, 0));
         }
         return this;
     }
-    
+
+    private SMagic line(Vector start, Vector end, double dense){
+        Vector v = new Vector(end.getX() - start.getX(),end.getY() - start.getY(),end.getZ() - start.getZ()).divide(new Vector(start.distance(end), start.distance(end), start.distance(end)));
+        double x = v.getX() * dense;
+        double y = v.getY() * dense;
+        double z = v.getZ() * dense;
+        int d = (int) ((start.distance(end))/dense);
+        for(int i =0; i < d; i++){
+            locations.add(start.clone());
+            start.add(new Vector(x,y,z));
+        }
+        return this;
+    }
+
+    public SMagic line(Vector end, double dense){
+        line(new Vector(0,0,0), end, dense);
+        return this;
+    }
+
+    public SMagic fixedLine(Vector end, double dense){
+        fixedLine.add(new FixedLine(end, dense));
+        return this;
+    }
 
     public SMagic setBaseMargin(Vector v){
         baseMagrin = v;
@@ -84,12 +135,36 @@ public class SMagic {
         return this;
     }
 
+    public SMagic addSMagic(SMagic magic){
+        SMagicComponents.add(magic);
+        return this;
+    }
+
     public ArrayList<Location> getPosInformation(Location locationAt){
         ArrayList<Location> pos = new ArrayList<>();
         for(int i =0; i < locations.size(); i++){
             pos.add(locations.get(i).toLocation(Objects.requireNonNull(locationAt.getWorld())).add(locationAt));
         }
         return pos;
+    }
+
+    private void render(Location atLocation, EnumParticle particle){
+        for(SMagic magic : SMagicComponents){
+            for(FixedLine line: magic.fixedLine){
+                Location start = atLocation.clone();
+                Location end = line.getEndPoint().toLocation(Objects.requireNonNull(start.getWorld())).clone();
+                Vector v = new Vector(end.getX() - start.getX(),end.getY() - start.getY(),end.getZ() - start.getZ()).divide(new Vector(start.distance(end), start.distance(end), start.distance(end)));
+                double x = v.getX() * line.getDense();
+                double y = v.getY() * line.getDense();
+                double z = v.getZ() * line.getDense();
+                int d = (int) ((start.distance(end))/line.getDense());
+                for(int i =0; i < d; i++){
+                    playSingleParticle(start, particle);
+                    start.add(new Vector(x,y,z));
+                }
+            }
+
+        }
     }
 
     private void playSingleParticle(Location l, EnumParticle particle){
@@ -102,12 +177,17 @@ public class SMagic {
     }
 
     public void playParticle(Location atLocation, EnumParticle particle){
+        for(SMagic magic : SMagicComponents){
+            magic.playParticle(atLocation, particle);
+        }
+        render(atLocation, particle);
         for(int i =0; i < locations.size(); i++){
-            playSingleParticle(locations
+            Location l = locations
                     .get(i)
                     .toLocation(Objects.requireNonNull(atLocation.getWorld()))
                     .add(atLocation).add(distanceAwayMargin)
-                    .add(baseMagrin)
+                    .add(baseMagrin);
+            playSingleParticle(l
                     , particle);
         }
     }
