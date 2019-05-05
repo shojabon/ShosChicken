@@ -18,7 +18,7 @@ public class SParticleCircle implements SParticleForm {
     private double radius;
     private double dots;
 
-    private Location direction;
+    private Vector direction;
     private Vector baseMargin = new Vector();
     private Vector distanceAwayMargin = new Vector();
 
@@ -55,7 +55,7 @@ public class SParticleCircle implements SParticleForm {
         return this;
     }
 
-    public SParticleCircle setDirection(Location direction){
+    public SParticleCircle setDirection(Vector direction){
         this.direction = direction;
         return this;
     }
@@ -92,12 +92,11 @@ public class SParticleCircle implements SParticleForm {
                     }catch (Exception e){
                     }
                 }
-                v = SParticleForm.rotateFunction(v, direction);
                 SParticleForm.playSingleParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(atLocation).add(distanceAwayMargin).add(baseMargin), particle);
             }
         };
         if(startAfter == 0 && perParticleDelay == 0){
-            r.run();
+            new Thread(r).run();
         }else{
             new Thread(r).start();
         }

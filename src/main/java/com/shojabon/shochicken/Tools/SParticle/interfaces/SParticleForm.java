@@ -12,6 +12,9 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.StrictMath.asin;
+import static java.lang.StrictMath.atan2;
+
 public interface SParticleForm {
     void playParticle(Location atLocation);
 
@@ -41,11 +44,12 @@ public interface SParticleForm {
         return vect.setX(X).setZ(Z);
     }
 
-    static  Vector rotateFunction(Vector v, Location loc){
-        if(loc == null) return v;
+    static  Vector rotateFunction(Vector v, Vector direction){
+        if(direction == null) return v;
+        Vector loc = pitchYawVector(direction.normalize());
 
-        double yawRadiant = loc.getYaw()/180*Math.PI;
-        double pitchRadiant = loc.getPitch()/180*Math.PI;
+        double yawRadiant = Math.toRadians(loc.getY());
+        double pitchRadiant = Math.toRadians(loc.getX());
 
         v = rotateAboutX(v, pitchRadiant);
         v = rotateAboutY(v, -yawRadiant);
@@ -59,6 +63,20 @@ public interface SParticleForm {
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
             }
         }
+    }
+
+    static Vector getDirectionTowards(Vector start, Vector end){
+        return new Vector(end.getX() - start.getX(),end.getY() - start.getY(),end.getZ() - start.getZ()).divide(new Vector(start.distance(end), start.distance(end), start.distance(end))).normalize();
+    }
+
+    static Vector pitchYawVector(Vector direction){
+        Location l = new Location(null, 0,0,0).setDirection(direction.normalize());
+        return new Vector(l.getPitch(), l.getYaw(), 0);
+    }
+
+    static Vector directionVector(Vector pitchYaw){
+        Location l = new Location(null, 0,0,0,  (float) pitchYaw.getY(), (float) pitchYaw.getX());
+        return l.getDirection().normalize();
     }
 
 }

@@ -1,10 +1,13 @@
 package com.shojabon.shochicken;
 
-import com.shojabon.shochicken.Tools.SMagic;
 import com.shojabon.shochicken.Tools.SMagicLib;
+import com.shojabon.shochicken.Tools.SParticle.SParticle;
+import com.shojabon.shochicken.Tools.SParticle.interfaces.SParticleForm;
 import com.shojabon.shochicken.Tools.SParticle.particles.SParticleCircle;
+import com.shojabon.shochicken.Tools.SParticle.particles.SParticleFixedThickBeam;
+import com.shojabon.shochicken.Tools.SParticle.particles.SParticleThickBeam;
 import net.minecraft.server.v1_12_R1.EnumParticle;
-import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,7 +32,11 @@ public final class ShoChicken extends JavaPlugin {
         Player p = ((Player)sender);
         SMagicLib lib = new SMagicLib();
         if(command.getName().equalsIgnoreCase("test")){
-            new SParticleCircle(EnumParticle.VILLAGER_HAPPY, 1, 30).setDistanceAwayMargin(p.getLocation().getDirection(), 1).setReverse(true).setPerParticleDelay(50).setDirection(p.getLocation()).playParticle(p.getEyeLocation());
+//            new SParticleCircle(EnumParticle.VILLAGER_HAPPY, 0.5, 20)
+//                    .setDirection(SParticleForm.getDirectionTowards(p.getEyeLocation().toVector(), new Vector(500,120,-1200)))
+//                    .setDistanceAwayMargin(p.getLocation().getDirection(), 1)
+//                    .playParticle(p.getEyeLocation());
+            new SParticleFixedThickBeam(new SParticleCircle(EnumParticle.VILLAGER_HAPPY, 0.5, 20).setPerParticleDelay(100), new Vector(500,120,-1200), 1).playParticle(p.getLocation());
         }
         return false;
     }

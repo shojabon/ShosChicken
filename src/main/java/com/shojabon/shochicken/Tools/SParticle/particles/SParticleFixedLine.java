@@ -1,10 +1,8 @@
 package com.shojabon.shochicken.Tools.SParticle.particles;
 
 import com.google.common.collect.Lists;
-import com.shojabon.shochicken.Tools.SMagic;
 import com.shojabon.shochicken.Tools.SParticle.interfaces.SParticleForm;
 import net.minecraft.server.v1_12_R1.EnumParticle;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -12,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SParticleLine implements SParticleForm{
+public class SParticleFixedLine implements SParticleForm{
 
     private EnumParticle particle;
     private Vector end;
@@ -27,48 +25,48 @@ public class SParticleLine implements SParticleForm{
     private boolean reverseStart = false;
 
 
-    public SParticleLine(EnumParticle particle, Vector end, double dense){
+    public SParticleFixedLine(EnumParticle particle, Vector end, double dense){
         this.particle = particle;
         this.end = end;
         this.dense = dense;
     }
 
-    public SParticleLine setParticle(EnumParticle particle){
+    public SParticleFixedLine setParticle(EnumParticle particle){
         this.particle = particle;
         return this;
     }
-    public SParticleLine setEnd(Vector end){
+    public SParticleFixedLine setEnd(Vector end){
         this.end = end;
         return this;
     }
-    public SParticleLine setDense(double dense){
+    public SParticleFixedLine setDense(double dense){
         this.dense = dense;
         return this;
     }
 
-    public SParticleLine setBaseMargin(Vector baseMargin){
+    public SParticleFixedLine setBaseMargin(Vector baseMargin){
         this.baseMargin = baseMargin;
         return this;
     }
-    public SParticleLine setDistanceAwayMargin(Vector direction, double range){
+    public SParticleFixedLine setDistanceAwayMargin(Vector direction, double range){
         this.distanceAwayMargin = direction.normalize().multiply(range);
         return this;
     }
 
-    public SParticleLine setDirection(Vector direction){
+    public SParticleFixedLine setDirection(Vector direction){
         this.direction = direction;
         return this;
     }
-    public SParticleLine setPerParticleDelay(long delayMills){
+    public SParticleFixedLine setPerParticleDelay(long delayMills){
         this.perParticleDelay = delayMills;
         return this;
     }
-    public SParticleLine setStartAfter(long startAfterMills){
+    public SParticleFixedLine setStartAfter(long startAfterMills){
         this.startAfter = startAfterMills;
         return this;
     }
 
-    public SParticleLine setReverse(boolean reverse){
+    public SParticleFixedLine setReverse(boolean reverse){
         this.reverseStart = reverse;
         return this;
     }
@@ -91,7 +89,7 @@ public class SParticleLine implements SParticleForm{
     @Override
     public void playParticle(Location atLocation) {
         Runnable r = () -> {
-            List<Vector> pos = getLocationInfo();
+            List<Vector> pos = getLocationInfo(atLocation.toVector());
             if (reverseStart) pos = Lists.reverse(pos);
             if (startAfter != 0) {
                 try {
@@ -107,7 +105,7 @@ public class SParticleLine implements SParticleForm{
                     }
                 }
                 v = SParticleForm.rotateFunction(v, direction);
-                SParticleForm.playSingleParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(atLocation).add(distanceAwayMargin).add(baseMargin), particle);
+                SParticleForm.playSingleParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(distanceAwayMargin).add(baseMargin), particle);
             }
         };
         if(startAfter == 0 && perParticleDelay == 0){
@@ -120,15 +118,11 @@ public class SParticleLine implements SParticleForm{
 
     @Override
     public List<Vector> getLocationInfo() {
-        return line(new Vector(0,0,0), end, dense);
+        return null;
     }
 
     @Override
     public List<Vector> getLocationInfo(Vector atVector) {
-        List<Vector> pos = getLocationInfo();
-        for(int i =0; i < pos.size(); i++){
-            pos.set(i, pos.get(i).add(atVector));
-        }
-        return pos;
+        return line(atVector, end, dense);
     }
 }

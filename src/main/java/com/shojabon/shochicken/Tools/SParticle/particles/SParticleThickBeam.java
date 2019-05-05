@@ -1,10 +1,9 @@
 package com.shojabon.shochicken.Tools.SParticle.particles;
 
 import com.google.common.collect.Lists;
-import com.shojabon.shochicken.Tools.SMagic;
+import com.shojabon.shochicken.Tools.SParticle.SParticle;
 import com.shojabon.shochicken.Tools.SParticle.interfaces.SParticleForm;
 import net.minecraft.server.v1_12_R1.EnumParticle;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -12,9 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SParticleLine implements SParticleForm{
+public class SParticleThickBeam implements SParticleForm{
 
-    private EnumParticle particle;
     private Vector end;
     private double dense;
 
@@ -26,49 +24,52 @@ public class SParticleLine implements SParticleForm{
     private long perParticleDelay = 0;
     private boolean reverseStart = false;
 
+    private SParticleCircle circle;
 
-    public SParticleLine(EnumParticle particle, Vector end, double dense){
-        this.particle = particle;
+
+    public SParticleThickBeam( SParticleCircle circle, Vector end, double dense){
         this.end = end;
+        this.circle = circle;
         this.dense = dense;
     }
 
-    public SParticleLine setParticle(EnumParticle particle){
-        this.particle = particle;
+    public SParticleThickBeam setCircle(SParticleCircle circle){
+        this.circle = circle;
         return this;
     }
-    public SParticleLine setEnd(Vector end){
+
+    public SParticleThickBeam setEnd(Vector end){
         this.end = end;
         return this;
     }
-    public SParticleLine setDense(double dense){
+    public SParticleThickBeam setDense(double dense){
         this.dense = dense;
         return this;
     }
 
-    public SParticleLine setBaseMargin(Vector baseMargin){
+    public SParticleThickBeam setBaseMargin(Vector baseMargin){
         this.baseMargin = baseMargin;
         return this;
     }
-    public SParticleLine setDistanceAwayMargin(Vector direction, double range){
+    public SParticleThickBeam setDistanceAwayMargin(Vector direction, double range){
         this.distanceAwayMargin = direction.normalize().multiply(range);
         return this;
     }
 
-    public SParticleLine setDirection(Vector direction){
+    public SParticleThickBeam setDirection(Vector direction){
         this.direction = direction;
         return this;
     }
-    public SParticleLine setPerParticleDelay(long delayMills){
+    public SParticleThickBeam setPerParticleDelay(long delayMills){
         this.perParticleDelay = delayMills;
         return this;
     }
-    public SParticleLine setStartAfter(long startAfterMills){
+    public SParticleThickBeam setStartAfter(long startAfterMills){
         this.startAfter = startAfterMills;
         return this;
     }
 
-    public SParticleLine setReverse(boolean reverse){
+    public SParticleThickBeam setReverse(boolean reverse){
         this.reverseStart = reverse;
         return this;
     }
@@ -107,7 +108,8 @@ public class SParticleLine implements SParticleForm{
                     }
                 }
                 v = SParticleForm.rotateFunction(v, direction);
-                SParticleForm.playSingleParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(atLocation).add(distanceAwayMargin).add(baseMargin), particle);
+                Vector circleDirection = SParticleForm.getDirectionTowards(atLocation.toVector(), end.clone().add(atLocation.toVector()));
+                circle.setDirection(circleDirection).playParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(atLocation).add(distanceAwayMargin).add(baseMargin));
             }
         };
         if(startAfter == 0 && perParticleDelay == 0){
