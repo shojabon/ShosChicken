@@ -1,5 +1,6 @@
 package com.shojabon.shochicken.Tools;
 
+import com.google.common.util.concurrent.ExecutionError;
 import net.minecraft.server.v1_12_R1.EnumParticle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutWorldParticles;
 import org.bukkit.Bukkit;
@@ -38,8 +39,7 @@ public class SMagic {
     private Vector distanceAwayMargin = new Vector();
     private Vector baseMagrin = new Vector();
     private long playAfter = 0;
-    private ArrayList<SMagic> SMagicComponents = new ArrayList<>();
-    private Location direction;
+    private long playTimeMargin = 0;
 
 
 
@@ -76,10 +76,9 @@ public class SMagic {
     }
 
     public  SMagic rotateFunction(Location direction){
-        this.direction = direction;
-//        for(int i =0; i < locations.size(); i++){
-//            locations.set(i, rotateFunction(locations.get(i), direction));
-//        }
+        for(int i =0; i < locations.size(); i++){
+            locations.set(i, rotateFunction(locations.get(i), direction));
+        }
         return this;
     }
 
@@ -104,7 +103,11 @@ public class SMagic {
         double z = v.getZ() * dense;
         int d = (int) ((start.distance(end))/dense);
         for(int i =0; i < d; i++){
-            locations.add(start.clone());
+            if(start == new Vector(0,0,0)) {
+                locations.add(start.clone());
+            }else{
+                locations.add(start.clone());
+            }
             start.add(new Vector(x,y,z));
         }
         return this;
@@ -130,13 +133,13 @@ public class SMagic {
         return this;
     }
 
-    public SMagic setDistanceAway(Vector direction, float distance){
-        distanceAwayMargin.add(direction.normalize().multiply(distance));
+    public SMagic setPlayTimeMargin(long mills){
+        playTimeMargin = mills;
         return this;
     }
 
-    public SMagic addSMagic(SMagic magic){
-        SMagicComponents.add(magic);
+    public SMagic setDistanceAway(Vector direction, float distance){
+        distanceAwayMargin.add(direction.normalize().multiply(distance));
         return this;
     }
 
@@ -149,8 +152,7 @@ public class SMagic {
     }
 
     private void render(Location atLocation, EnumParticle particle){
-        for(SMagic magic : SMagicComponents){
-            for(FixedLine line: magic.fixedLine){
+            for(FixedLine line: fixedLine){
                 Location start = atLocation.clone();
                 Location end = line.getEndPoint().toLocation(Objects.requireNonNull(start.getWorld())).clone();
                 Vector v = new Vector(end.getX() - start.getX(),end.getY() - start.getY(),end.getZ() - start.getZ()).divide(new Vector(start.distance(end), start.distance(end), start.distance(end)));
@@ -163,9 +165,8 @@ public class SMagic {
                     start.add(new Vector(x,y,z));
                 }
             }
-
-        }
     }
+
 
     private void playSingleParticle(Location l, EnumParticle particle){
         PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(particle, true, (float) l.getX(), (float) (l.getY()), (float) l.getZ(), 0, 0, 0, 1, 1);
@@ -177,15 +178,18 @@ public class SMagic {
     }
 
     public void playParticle(Location atLocation, EnumParticle particle){
-        for(SMagic magic : SMagicComponents){
-            magic.playParticle(atLocation, particle);
-        }
         render(atLocation, particle);
         for(int i =0; i < locations.size(); i++){
+            if(playTimeMargin != 0){
+                try{
+                    Thread.sleep(playTimeMargin);
+                }catch (Exception e){}
+            }
             Location l = locations
                     .get(i)
                     .toLocation(Objects.requireNonNull(atLocation.getWorld()))
-                    .add(atLocation).add(distanceAwayMargin)
+                    .add(atLocation)
+                    .add(distanceAwayMargin)
                     .add(baseMagrin);
             playSingleParticle(l
                     , particle);

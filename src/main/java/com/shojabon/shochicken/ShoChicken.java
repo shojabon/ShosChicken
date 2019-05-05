@@ -2,6 +2,7 @@ package com.shojabon.shochicken;
 
 import com.shojabon.shochicken.Tools.SMagic;
 import com.shojabon.shochicken.Tools.SMagicLib;
+import com.shojabon.shochicken.Tools.SParticle.particles.SParticleCircle;
 import net.minecraft.server.v1_12_R1.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -28,13 +29,7 @@ public final class ShoChicken extends JavaPlugin {
         Player p = ((Player)sender);
         SMagicLib lib = new SMagicLib();
         if(command.getName().equalsIgnoreCase("test")){
-            SMagic circle1 = new SMagic().circle(0.3, 20);
-            SMagic circle2 = new SMagic().circle(0.6, 30).setBaseMargin(0,0, 1);
-            SMagic circle3 = new SMagic().circle(1, 40).setBaseMargin(0,0,2);
-            SMagic shootOut = new SMagic().addSMagic(circle1).addSMagic(circle2).addSMagic(circle3);
-            shootOut.rotateFunction(p.getLocation());
-            shootOut.setDistanceAway(p.getLocation().getDirection(), 1);
-            shootOut.playParticle(p.getEyeLocation(), EnumParticle.DRIP_WATER);
+            new SParticleCircle(EnumParticle.VILLAGER_HAPPY, 1, 30).setDistanceAwayMargin(p.getLocation().getDirection(), 1).setReverse(true).setPerParticleDelay(50).setDirection(p.getLocation()).playParticle(p.getEyeLocation());
         }
         return false;
     }
