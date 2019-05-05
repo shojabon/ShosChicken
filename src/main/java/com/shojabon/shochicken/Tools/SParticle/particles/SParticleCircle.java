@@ -76,13 +76,7 @@ public class SParticleCircle implements SParticleForm {
     @Override
     public void playParticle(Location atLocation) {
         Runnable r = () -> {
-            List<Location> pos = new ArrayList<>();
-            for(double i =0; i < dots; i++){
-                double x = SParticleForm.sin(Math.toRadians(i*360D/ dots)) * radius;
-                double y = SParticleForm.cos(Math.toRadians(i*360D/ dots)) * radius;
-                Location l = SParticleForm.rotateFunction(new Vector(x, y, 0), direction).toLocation(Objects.requireNonNull(atLocation.getWorld())).add(atLocation);
-                pos.add(l);
-            }
+            List<Vector> pos = getLocationInfo();
             if(reverseStart) pos = Lists.reverse(pos);
             if(startAfter != 0){
                 try{
@@ -90,14 +84,14 @@ public class SParticleCircle implements SParticleForm {
                 }catch (Exception e){
                 }
             }
-            for(Location l : pos){
+            for(Vector v: pos){
                 if(perParticleDelay != 0){
                     try{
                         Thread.sleep(perParticleDelay);
                     }catch (Exception e){
                     }
                 }
-                SParticleForm.playSingleParticle(l.add(distanceAwayMargin).add(baseMargin), particle);
+                SParticleForm.playSingleParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(atLocation).add(distanceAwayMargin).add(baseMargin), particle);
             }
         };
         if(startAfter == 0 && perParticleDelay == 0){
@@ -105,5 +99,26 @@ public class SParticleCircle implements SParticleForm {
         }else{
             new Thread(r).start();
         }
+    }
+
+    @Override
+    public List<Vector> getLocationInfo() {
+        List<Vector> pos = new ArrayList<>();
+        for(double i =0; i < dots; i++){
+            double x = SParticleForm.sin(Math.toRadians(i*360D/ dots)) * radius;
+            double y = SParticleForm.cos(Math.toRadians(i*360D/ dots)) * radius;
+            Vector l = SParticleForm.rotateFunction(new Vector(x, y, 0), direction);
+            pos.add(l);
+        }
+        return pos;
+    }
+
+    @Override
+    public List<Vector> getLocationInfo(Vector atVector) {
+        List<Vector> v = getLocationInfo();
+        for(int i =0; i < v.size(); i++){
+            v.set(i, v.get(i).add(atVector));
+        }
+        return v;
     }
 }

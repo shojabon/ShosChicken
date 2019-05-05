@@ -10,9 +10,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface SParticleForm {
     void playParticle(Location atLocation);
+
+    List<Vector> getLocationInfo();
+
+    List<Vector> getLocationInfo(Vector atVector);
 
     static double cos(double a){
         return Math.cos(a);
