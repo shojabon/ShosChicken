@@ -4,6 +4,7 @@ import net.minecraft.server.v1_12_R1.EnumParticle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutWorldParticles;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -80,13 +81,18 @@ public interface SParticleForm {
         return l.getDirection().normalize();
     }
 
-    static RayTraceResult rayTrace(Location location, Vector direction, double distance){
+    static SRayTraceResult rayTrace(Location location, Vector direction, double distance, Entity ignoreEntity){
         Vector direc = direction.clone().normalize().multiply(0.5);
         Location loc = location.add(direc).clone();
         for(int i =0; i < distance*2; i++){
-            if(loc.getBlock() == null) return new RayTraceResult(null, loc.toVector());
-            Collection<Entity> enti = loc.getWorld().getNearbyEntities(loc,0.1,0.1,0.1);
-            if(enti.size() != 0) return new RayTraceResult(((Entity)enti.toArray()[0]),((Entity)enti.toArray()[0]).getLocation().toVector());
+            if(loc.getBlock().getType() != Material.AIR) return new SRayTraceResult(null, loc.toVector());
+            Entity[] enti = loc.getChunk().getEntities();
+            for(Entity en:enti){
+                Location centerLoc = en.getLocation().clone().add(0, en.getHeight()/2D, 0);
+                if(!en.equals(ignoreEntity)){
+                    if(centerLoc.distance(loc) < en.getHeight()/2D) return new SRayTraceResult(en, loc.toVector());
+                }
+            }
             loc.add(direc);
         }
         return null;
@@ -94,21 +100,3 @@ public interface SParticleForm {
 
 }
 
-class RayTraceResult{
-    private Entity hitEntity;
-    private Vector location;
-
-    public RayTraceResult(Entity hitEntity, Vector location){
-        this.hitEntity = hitEntity;
-        this.location = location;
-    }
-
-    public Entity getHitEntity() {
-        return hitEntity;
-    }
-
-    public Vector getLocation() {
-        return location;
-    }
-
-}

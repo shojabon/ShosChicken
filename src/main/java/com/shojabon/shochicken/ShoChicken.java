@@ -38,10 +38,7 @@ public final class ShoChicken extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player p = ((Player)sender);
         if(command.getName().equalsIgnoreCase("test")){
-            Collection<Entity> ent = p.getLocation().getWorld().getNearbyEntities(p.getLocation(), 100, 100, 100);
-            for(Entity entt : ent){
-                new BeamAttack(5, p.getEyeLocation(), entt.getLocation(), EnumParticle.DRIP_WATER).play();
-            }
+            new BeamAttack(5, p.getEyeLocation(), p.getLocation().getDirection().normalize().multiply(100).toLocation(p.getLocation().getWorld()).add(p.getEyeLocation()), EnumParticle.DRIP_WATER).setIgnoreEntity(p).play();
         }
         return false;
     }
