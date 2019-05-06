@@ -1,4 +1,4 @@
-package com.shojabon.shochicken.Tools;
+package com.shojabon.shochicken.Tools.SParticle;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

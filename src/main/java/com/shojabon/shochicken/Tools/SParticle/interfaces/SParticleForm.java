@@ -1,15 +1,16 @@
 package com.shojabon.shochicken.Tools.SParticle.interfaces;
 
-import com.shojabon.shochicken.Tools.SMagic;
 import net.minecraft.server.v1_12_R1.EnumParticle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutWorldParticles;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static java.lang.StrictMath.asin;
@@ -77,6 +78,37 @@ public interface SParticleForm {
     static Vector directionVector(Vector pitchYaw){
         Location l = new Location(null, 0,0,0,  (float) pitchYaw.getY(), (float) pitchYaw.getX());
         return l.getDirection().normalize();
+    }
+
+    static RayTraceResult rayTrace(Location location, Vector direction, double distance){
+        Vector direc = direction.clone().normalize().multiply(0.5);
+        Location loc = location.add(direc).clone();
+        for(int i =0; i < distance*2; i++){
+            if(loc.getBlock() == null) return new RayTraceResult(null, loc.toVector());
+            Collection<Entity> enti = loc.getWorld().getNearbyEntities(loc,0.1,0.1,0.1);
+            if(enti.size() != 0) return new RayTraceResult(((Entity)enti.toArray()[0]),((Entity)enti.toArray()[0]).getLocation().toVector());
+            loc.add(direc);
+        }
+        return null;
+    }
+
+}
+
+class RayTraceResult{
+    private Entity hitEntity;
+    private Vector location;
+
+    public RayTraceResult(Entity hitEntity, Vector location){
+        this.hitEntity = hitEntity;
+        this.location = location;
+    }
+
+    public Entity getHitEntity() {
+        return hitEntity;
+    }
+
+    public Vector getLocation() {
+        return location;
     }
 
 }

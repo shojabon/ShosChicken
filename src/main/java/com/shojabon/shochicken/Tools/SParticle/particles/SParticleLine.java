@@ -1,7 +1,6 @@
 package com.shojabon.shochicken.Tools.SParticle.particles;
 
 import com.google.common.collect.Lists;
-import com.shojabon.shochicken.Tools.SMagic;
 import com.shojabon.shochicken.Tools.SParticle.interfaces.SParticleForm;
 import net.minecraft.server.v1_12_R1.EnumParticle;
 import org.bukkit.Bukkit;
