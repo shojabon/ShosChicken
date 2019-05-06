@@ -108,17 +108,7 @@ public class SParticleFixedLine implements SParticleForm{
                 SParticleForm.playSingleParticle(v.toLocation(Objects.requireNonNull(atLocation.getWorld())).add(distanceAwayMargin).add(baseMargin), particle);
             }
         };
-        if(startAfter == 0 && perParticleDelay == 0){
-            new Thread(r).run();
-        }else{
-            new Thread(r).start();
-            try {
-                Thread.sleep(startAfter);
-                Thread.sleep(getLocationInfo(atLocation.toVector()).size()*perParticleDelay);
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
-        }
+        r.run();
 
     }
 

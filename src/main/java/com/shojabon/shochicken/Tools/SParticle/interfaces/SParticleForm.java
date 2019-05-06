@@ -88,14 +88,18 @@ public interface SParticleForm {
             if(loc.getBlock().getType() != Material.AIR) return new SRayTraceResult(null, loc.toVector());
             Entity[] enti = loc.getChunk().getEntities();
             for(Entity en:enti){
-                Location centerLoc = en.getLocation().clone().add(0, en.getHeight()/2D, 0);
                 if(!en.equals(ignoreEntity)){
-                    if(centerLoc.distance(loc) < en.getHeight()/2D) return new SRayTraceResult(en, loc.toVector());
+                    if(hit(en, loc.toVector())) return new SRayTraceResult(en, loc.toVector());
                 }
             }
             loc.add(direc);
         }
-        return null;
+        return new SRayTraceResult();
+    }
+
+    static boolean hit(Entity en, Vector loc){
+        Vector centerLoc = en.getLocation().toVector().clone().add(new Vector(0, en.getHeight()/2D, 0));
+        return (centerLoc.distance(loc) < 1.5D);
     }
 
 }
